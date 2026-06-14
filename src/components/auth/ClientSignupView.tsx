@@ -67,7 +67,7 @@ export function ClientSignupView() {
   }
 
   return (
-    <Card className="relative w-full max-w-md border-zinc-800 bg-zinc-950/60 shadow-2xl shadow-black/40 backdrop-blur-md">
+    <Card className="relative w-full max-w-md animate-in fade-in zoom-in-95 border-zinc-800 bg-zinc-950/60 shadow-2xl shadow-black/40 backdrop-blur-md duration-500 motion-reduce:animate-none">
       <CardHeader className="space-y-2 text-center">
         <CardTitle className="text-2xl font-semibold tracking-tight text-zinc-50">
           {copy.auth.client.title}

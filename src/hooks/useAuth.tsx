@@ -16,6 +16,7 @@ import {
   signOutUser,
   subscribeToAuthState,
 } from '@/services/auth.service';
+import { getAuthErrorMessage } from '@/lib/auth-errors';
 import { getProviderByUserId } from '@/services/providers.service';
 import { getUserProfile } from '@/services/users.service';
 import type { ProviderProfile, UserProfile } from '@/types';
@@ -98,8 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProviderProfile(null);
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to sign in with Google';
+      const message = getAuthErrorMessage(err);
       setError(message);
       throw err;
     } finally {

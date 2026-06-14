@@ -46,7 +46,7 @@ export default function HomePage() {
     <div className="relative flex flex-1 flex-col">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-800/40 via-zinc-950 to-zinc-950"
+        className="motion-soft-pulse pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-800/40 via-zinc-950 to-zinc-950"
       />
 
       <main className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-4">

@@ -30,7 +30,7 @@ export function ProviderSignInGate() {
   }
 
   return (
-    <Card className="w-full max-w-2xl border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
+    <Card className="w-full max-w-2xl animate-in fade-in zoom-in-95 border-zinc-800 bg-zinc-950/70 backdrop-blur-md duration-500 motion-reduce:animate-none">
       <CardHeader>
         <CardTitle className="text-xl text-zinc-50">
           {copy.auth.provider.signInTitle}

@@ -129,3 +129,81 @@
     scroll-behavior: smooth;
   }
 }
+
+@keyframes motion-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes motion-soft-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@layer utilities {
+  .motion-ease-premium {
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .motion-fade-up {
+    animation: motion-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-fade-in {
+    animation: motion-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-soft-pulse {
+    animation: motion-soft-pulse 8s ease-in-out infinite;
+  }
+
+  .motion-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .motion-delay-2 {
+    animation-delay: 160ms;
+  }
+
+  .motion-delay-3 {
+    animation-delay: 240ms;
+  }
+
+  .motion-delay-4 {
+    animation-delay: 320ms;
+  }
+
+  .motion-delay-5 {
+    animation-delay: 400ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-fade-up,
+    .motion-fade-in,
+    .motion-soft-pulse {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}

@@ -51,15 +51,15 @@ export function ProviderCard({ provider }: ProviderCardProps) {
   return (
     <Card
       id={`provider-${provider.id}`}
-      className="overflow-hidden border-zinc-800 bg-zinc-950/70 backdrop-blur-md"
+      className="group overflow-hidden border-zinc-800 bg-zinc-950/70 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20 motion-reduce:transform-none motion-reduce:shadow-none"
     >
-      <div className="relative aspect-[16/10] w-full bg-zinc-900">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-900">
         {coverImage ? (
           <Image
             src={coverImage}
             alt={`${provider.name} portfolio`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         ) : (

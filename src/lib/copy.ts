@@ -117,6 +117,19 @@ export const copy = {
       clientLink: 'Vous cherchez un atelier ?',
       clientLinkAction: 'Connectez-vous en tant que client',
     },
+    errors: {
+      default: 'Impossible de se connecter. Réessayez dans un instant.',
+      unauthorizedDomain:
+        'Ce domaine n\'est pas autorisé pour la connexion Google. Ajoutez fablink.vercel.app dans Firebase → Authentication → Domaines autorisés.',
+      popupClosed: 'Connexion annulée.',
+      popupCancelled: 'Une autre fenêtre de connexion est déjà ouverte.',
+      popupBlocked:
+        'La fenêtre de connexion a été bloquée. Autorisez les pop-ups pour ce site.',
+      network: 'Problème de connexion réseau. Vérifiez votre accès internet.',
+      tooManyRequests: 'Trop de tentatives. Patientez quelques minutes.',
+      accountExists:
+        'Un compte existe déjà avec cet e-mail via un autre mode de connexion.',
+    },
   },
 
   providerFunnel: {
