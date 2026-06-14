@@ -2,6 +2,7 @@
 
 import { ProviderCard } from '@/components/marketplace/ProviderCard';
 import { MarketplaceSkeleton } from '@/components/marketplace/MarketplaceSkeleton';
+import { copy } from '@/lib/copy';
 import type { ProviderProfile } from '@/types';
 
 interface ProviderFeedProps {
@@ -26,10 +27,11 @@ export function ProviderFeed({ providers, loading, error }: ProviderFeedProps) {
   if (providers.length === 0) {
     return (
       <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-10 text-center backdrop-blur-md">
-        <p className="text-lg font-medium text-zinc-200">No providers found</p>
+        <p className="text-lg font-medium text-zinc-200">
+          {copy.marketplace.noProviders}
+        </p>
         <p className="mt-2 text-sm text-zinc-400">
-          Try adjusting your filters or check back soon as new workshops join
-          FabLink.
+          {copy.marketplace.noProvidersHint}
         </p>
       </div>
     );

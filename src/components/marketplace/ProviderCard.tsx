@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { MessageCircle, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { MessageCircle, ShieldCheck, User } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { getCategoryLabel } from '@/lib/constants';
-import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { copy } from '@/lib/copy';
+import { RatingSummary } from '@/components/reviews/RatingSummary';
+import { buildProviderWhatsAppUrl } from '@/lib/whatsapp';
 import { trackWhatsAppClick } from '@/services/analytics.service';
 import type { ProviderProfile } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,7 +30,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
   const { user } = useAuth();
   const coverImage = provider.images[0];
   const categoryLabels = provider.category.map(getCategoryLabel);
-  const whatsappUrl = buildWhatsAppUrl(
+  const whatsappUrl = buildProviderWhatsAppUrl(
     provider.whatsapp,
     provider.name,
     categoryLabels,
@@ -46,7 +49,10 @@ export function ProviderCard({ provider }: ProviderCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
+    <Card
+      id={`provider-${provider.id}`}
+      className="overflow-hidden border-zinc-800 bg-zinc-950/70 backdrop-blur-md"
+    >
       <div className="relative aspect-[16/10] w-full bg-zinc-900">
         {coverImage ? (
           <Image
@@ -58,7 +64,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-            No portfolio image
+            {copy.marketplace.noImage}
           </div>
         )}
       </div>
@@ -70,15 +76,20 @@ export function ProviderCard({ provider }: ProviderCardProps) {
             <CardDescription className="text-zinc-400">
               {provider.city}
             </CardDescription>
+            <RatingSummary
+              average={provider.ratingAverage}
+              count={provider.ratingCount}
+              size="sm"
+            />
           </div>
           {provider.verified ? (
             <Badge className="bg-emerald-500/15 text-emerald-300">
               <ShieldCheck className="size-3.5" />
-              Verified
+              {copy.marketplace.verified}
             </Badge>
           ) : (
             <Badge variant="outline" className="border-zinc-700 text-zinc-400">
-              Pending
+              {copy.marketplace.pending}
             </Badge>
           )}
         </div>
@@ -102,14 +113,24 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         </p>
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          asChild
+          variant="outline"
+          className="min-h-11 w-full border-zinc-700 active:scale-95 sm:flex-1"
+        >
+          <Link href={`/providers/${provider.id}`}>
+            <User className="size-4" />
+            {copy.marketplace.viewProfile}
+          </Link>
+        </Button>
         <Button
           type="button"
           onClick={handleWhatsAppClick}
-          className="min-h-11 w-full active:scale-95"
+          className="min-h-11 w-full active:scale-95 sm:flex-1"
         >
           <MessageCircle className="size-4" />
-          Contact via WhatsApp
+          {copy.marketplace.whatsapp}
         </Button>
       </CardFooter>
     </Card>

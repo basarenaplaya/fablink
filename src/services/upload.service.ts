@@ -84,10 +84,7 @@ export async function uploadFileToCloudinary(
   formData.append('signature', sign.signature);
   formData.append('folder', sign.folder);
 
-  if (sign.resourceType === 'raw' || sign.resourceType === 'auto') {
-    formData.append('resource_type', sign.resourceType);
-  }
-
+  // resource_type is set by the upload URL segment (/image/upload, /raw/upload).
   const uploadUrl = `https://api.cloudinary.com/v1_1/${sign.cloudName}/${sign.resourceType}/upload`;
 
   const response = await fetch(uploadUrl, {
@@ -160,4 +157,90 @@ export async function uploadPortfolioImages(
   }
 
   return uploadedUrls;
+}
+
+const REQUEST_FILE_EXTENSIONS = new Set([
+  '.stl',
+  '.step',
+  '.stp',
+  '.iges',
+  '.igs',
+  '.obj',
+  '.3mf',
+  '.amf',
+  '.zip',
+  '.rar',
+  '.7z',
+  '.gerber',
+  '.gbr',
+  '.dxf',
+  '.dwg',
+  '.fcstd',
+  '.f3d',
+  '.skp',
+]);
+
+const REQUEST_MIME_PREFIXES = [
+  'model/',
+  'application/zip',
+  'application/x-zip-compressed',
+  'application/x-zip',
+  'application/octet-stream',
+  'application/vnd.ms-pki.stl',
+  'application/sla',
+];
+
+function getFileExtension(fileName: string): string {
+  const lastDot = fileName.lastIndexOf('.');
+  if (lastDot === -1) {
+    return '';
+  }
+  return fileName.slice(lastDot).toLowerCase();
+}
+
+function isAllowedRequestFile(file: File): boolean {
+  const extension = getFileExtension(file.name);
+
+  if (REQUEST_FILE_EXTENSIONS.has(extension)) {
+    return true;
+  }
+
+  if (!file.type || file.type === 'application/octet-stream') {
+    return false;
+  }
+
+  return REQUEST_MIME_PREFIXES.some(
+    (prefix) => file.type.startsWith(prefix) || file.type === prefix,
+  );
+}
+
+export function validateRequestFile(file: File): void {
+  if (!isAllowedRequestFile(file)) {
+    throw new UploadServiceError(
+      'File must be STL, STEP, Gerber, ZIP, or another supported CAD format',
+    );
+  }
+
+  validateFileSize(file);
+}
+
+export async function uploadRequestFile(
+  file: File,
+  userId: string,
+  requestId: string,
+  idToken: string,
+): Promise<{ fileUrl: string; fileName: string }> {
+  validateRequestFile(file);
+
+  const signature = await requestCloudinarySignature(
+    {
+      folder: `requests/${userId}/${requestId}`,
+      resourceType: 'raw',
+    },
+    idToken,
+  );
+
+  const fileUrl = await uploadFileToCloudinary(file, signature);
+
+  return { fileUrl, fileName: file.name };
 }

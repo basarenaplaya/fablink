@@ -1,6 +1,7 @@
 'use client';
 
 import { TUNISIAN_CITIES } from '@/lib/constants';
+import { copy } from '@/lib/copy';
 import {
   Select,
   SelectContent,
@@ -22,10 +23,10 @@ export function CityFilter({ value, onChange }: CityFilterProps) {
       onValueChange={(nextValue) => onChange(nextValue as TunisianCity | 'all')}
     >
       <SelectTrigger className="min-h-11 w-full border-zinc-700 bg-zinc-900/70 sm:w-56">
-        <SelectValue placeholder="All cities" />
+        <SelectValue placeholder={copy.marketplace.allCities} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All cities</SelectItem>
+        <SelectItem value="all">{copy.marketplace.allCities}</SelectItem>
         {TUNISIAN_CITIES.map((city) => (
           <SelectItem key={city} value={city}>
             {city}

@@ -5,10 +5,25 @@ export interface UserProfile {
   name: string;
   email: string;
   role: UserRole;
+  whatsapp?: string; // Expected format: 216xxxxxxxx
   createdAt: string;
+  updatedAt?: string;
 }
 
 export type ManufacturingCategory = '3d-printing' | 'cnc' | 'pcb';
+
+export type ReviewRating = 1 | 2 | 3 | 4 | 5;
+
+export interface ProviderReview {
+  id: string;
+  providerId: string;
+  clientId: string;
+  clientName: string;
+  rating: ReviewRating;
+  comment: string;
+  createdAt: string;
+  updatedAt?: string;
+}
 
 export interface ProviderProfile {
   id: string; // Matches UserProfile ID
@@ -19,12 +34,18 @@ export interface ProviderProfile {
   whatsapp: string; // Expected format: 216xxxxxxxx
   images: string[]; // Cloudinary secure URLs
   verified: boolean;
+  ratingAverage?: number;
+  ratingCount?: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface ServiceRequest {
   id: string;
   userId: string; // Client's User ID
+  clientName: string;
+  clientWhatsapp: string; // Expected format: 216xxxxxxxx
+  title: string;
   description: string;
   category: ManufacturingCategory;
   fileUrl?: string; // Cloudinary raw URL for files (STL, ZIP, etc.)

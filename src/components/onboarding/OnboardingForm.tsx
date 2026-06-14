@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { ArrowLeft, ImagePlus, Loader2 } from 'lucide-react';
+import { ImagePlus, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +38,7 @@ import {
   MAX_PORTFOLIO_IMAGES,
   TUNISIAN_CITIES,
 } from '@/lib/constants';
+import { copy } from '@/lib/copy';
 import { isValidWhatsapp, sanitizeWhatsapp } from '@/lib/whatsapp';
 import { useAuth } from '@/hooks/useAuth';
 import { createProviderProfile } from '@/services/providers.service';
@@ -119,7 +120,7 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
     toast.error(
       typeof firstMessage === 'string'
         ? firstMessage
-        : 'Please fix the highlighted fields before submitting.',
+        : copy.common.fixFields,
     );
   }
 
@@ -127,15 +128,15 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
     setPortfolioError(null);
 
     if (portfolioFiles.length === 0) {
-      setPortfolioError('Upload at least one portfolio image');
-      toast.error('Upload at least one portfolio image');
+      setPortfolioError('Ajoutez au moins une image de portfolio');
+      toast.error('Ajoutez au moins une image de portfolio');
       return;
     }
 
     const idToken = await getIdToken(true);
     if (!idToken) {
-      toast.error('Session expired. Please sign in again.');
-      router.replace('/login?redirect=/onboarding');
+      toast.error('Session expirée. Veuillez vous reconnecter.');
+      router.replace('/signup/client?redirect=/become-provider');
       return;
     }
 
@@ -163,13 +164,13 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
       await updateUserRole(userId, 'provider');
       await refreshProfile();
 
-      toast.success('Provider profile submitted for verification.');
+      toast.success(copy.onboarding.success);
       router.replace('/');
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : 'Failed to submit provider profile';
+          : 'Échec de la soumission du profil';
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -177,33 +178,21 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
   }
 
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-4">
-      <Button
-        type="button"
-        variant="ghost"
-        className="w-fit text-zinc-400 hover:text-zinc-50 active:scale-95"
-        onClick={() => router.push('/')}
-      >
-        <ArrowLeft className="size-4" />
-        Back to marketplace
-      </Button>
-
-      <Card className="w-full border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-zinc-50">
-            List your workshop
-          </CardTitle>
-          <CardDescription className="text-zinc-400">
-            Submit your profile for admin review. You will appear in the
-            marketplace once verified.
-          </CardDescription>
-        </CardHeader>
+    <Card className="w-full max-w-2xl border-zinc-800 bg-zinc-950/70 backdrop-blur-md">
+      <CardHeader>
+        <CardTitle className="text-2xl text-zinc-50">
+          {copy.onboarding.title}
+        </CardTitle>
+        <CardDescription className="text-zinc-400">
+          {copy.onboarding.subtitle}
+        </CardDescription>
+      </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)}>
             <FieldGroup>
               <Field data-invalid={!!errors.name}>
-                <FieldLabel htmlFor="name">Shop name</FieldLabel>
+                <FieldLabel htmlFor="name">{copy.onboarding.shopName}</FieldLabel>
                 <Input
                   id="name"
                   placeholder="e.g. Tunis 3D Lab"
@@ -215,7 +204,7 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
               </Field>
 
               <Field data-invalid={!!errors.whatsapp}>
-                <FieldLabel htmlFor="whatsapp">WhatsApp number</FieldLabel>
+                <FieldLabel htmlFor="whatsapp">{copy.onboarding.whatsapp}</FieldLabel>
                 <Input
                   id="whatsapp"
                   placeholder="216XXXXXXXX"
@@ -224,14 +213,13 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
                   {...register('whatsapp')}
                 />
                 <FieldDescription>
-                  Tunisia format only — 216 followed by 8 digits, no spaces or
-                  +.
+                  Format Tunisie — 216 suivi de 8 chiffres, sans espaces ni +.
                 </FieldDescription>
                 <FieldError errors={[errors.whatsapp]} />
               </Field>
 
               <Field data-invalid={!!errors.category}>
-                <FieldLabel>Services offered</FieldLabel>
+                <FieldLabel>{copy.onboarding.services}</FieldLabel>
                 <ToggleGroup
                   type="multiple"
                   variant="outline"
@@ -259,7 +247,7 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
               </Field>
 
               <Field data-invalid={!!errors.city}>
-                <FieldLabel htmlFor="city">City</FieldLabel>
+                <FieldLabel htmlFor="city">{copy.onboarding.city}</FieldLabel>
                 <Select
                   value={cityValue}
                   onValueChange={(value) =>
@@ -274,7 +262,7 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
                     aria-invalid={!!errors.city}
                     className="min-h-11 w-full border-zinc-700 bg-zinc-900/80"
                   >
-                    <SelectValue placeholder="Select your city" />
+                    <SelectValue placeholder="Sélectionnez votre ville" />
                   </SelectTrigger>
                   <SelectContent>
                     {TUNISIAN_CITIES.map((city) => (
@@ -288,23 +276,23 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
               </Field>
 
               <Field data-invalid={!!errors.description}>
-                <FieldLabel htmlFor="description">Description</FieldLabel>
+                <FieldLabel htmlFor="description">{copy.onboarding.description}</FieldLabel>
                 <Textarea
                   id="description"
                   rows={5}
-                  placeholder="Describe your machines, materials, turnaround time, and specialties..."
+                  placeholder="Décrivez vos machines, matériaux, délais et spécialités…"
                   aria-invalid={!!errors.description}
                   className="border-zinc-700 bg-zinc-900/80"
                   {...register('description')}
                 />
                 <FieldDescription>
-                  Minimum 20 characters so clients understand your capabilities.
+                  Minimum 20 caractères pour que les clients comprennent vos capacités.
                 </FieldDescription>
                 <FieldError errors={[errors.description]} />
               </Field>
 
               <Field data-invalid={!!portfolioError}>
-                <FieldLabel htmlFor="portfolio">Portfolio images</FieldLabel>
+                <FieldLabel htmlFor="portfolio">{copy.onboarding.portfolio}</FieldLabel>
                 <div className="flex flex-col gap-3">
                   <label
                     htmlFor="portfolio"
@@ -312,7 +300,7 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
                   >
                     <ImagePlus className="size-6 text-zinc-400" />
                     <span className="text-sm text-zinc-400">
-                      Upload up to {MAX_PORTFOLIO_IMAGES} images
+                      {copy.onboarding.portfolioHint(MAX_PORTFOLIO_IMAGES)}
                     </span>
                   </label>
                   <Input
@@ -347,16 +335,15 @@ export function OnboardingForm({ userId }: OnboardingFormProps) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    Submitting profile...
+                    {copy.onboarding.submitting}
                   </>
                 ) : (
-                  'Submit for verification'
+                  copy.onboarding.submit
                 )}
               </Button>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-    </div>
   );
 }

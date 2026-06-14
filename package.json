@@ -6,13 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:vercel": "node scripts/push-vercel-env.mjs && npx vercel@latest deploy --prod --yes"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
     "firebase": "^12.14.0",
     "firebase-admin": "^14.0.0",
     "lucide-react": "^1.18.0",

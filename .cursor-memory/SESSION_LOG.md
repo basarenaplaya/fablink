@@ -1,5 +1,128 @@
 # Session Log
 
+## 2026-06-13 — Session 10: Nav, Phone Display & Tunisia Phone Input
+
+### Actions
+- `useNavLinks` + `AppMobileNav` sheet; desktop nav at `lg+`; removed duplicate Fournisseurs from UserMenu
+- Phone utils in `whatsapp.ts`: `toLocalPhoneDigits`, `isValidLocalPhone`, `formatPhoneDisplay`, `buildTelUrl`
+- `TunisiaPhoneInput` component; wired into gate, account, workshop forms
+- Appeler + WhatsApp CTAs on JobBoardCard, ProviderProfileSidebar, StickyWhatsAppBar, ProviderCard
+- French copy updates (`phone.*`, `callClient`, `callProvider`)
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 9: M7 Reviews & Profile Redesign
+
+### Actions
+- Added `ProviderReview` type, `reviews.service.ts` with Firestore transaction aggregates
+- Built review components (StarRating, RatingSummary, ReviewForm, ReviewList, ProviderReviewsSection)
+- Redesigned atelier profile: two-column layout, reviews section below
+- Surfaced ratings on ProviderCard, FeaturedProviders; sort providers by rating
+- French `copy.reviews.*` strings
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 8: UX Fixes (Mon atelier, Auth, Portfolio)
+
+### Actions
+- Refactored `useAuth` → `AuthProvider` shared context with `providerProfile` cache
+- Unified provider nav to single **Mon atelier** link; edit via **Modifier mon atelier** on own profile page
+- Fixed sign-out `finally` block; menu updates without page refresh
+- Portfolio gallery: shadcn Carousel with visible prev/next + counter
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 7: M6 Profile Lifecycle
+
+### Actions
+- Extended UserProfile/ProviderProfile types; `updateUserProfile`, `updateProviderProfile`, `hasValidUserWhatsapp`
+- Built ProfileGateProvider, WhatsappCompletionDialog, wired into AppShell
+- Refactored OnboardingForm → WorkshopForm with create/edit + portfolio image management
+- `/become-provider` loads existing provider for edit (Gérer mon atelier)
+- Created `/mon-compte` account hub with tabs, profile form, role-based quick links
+- RequestForm: removed WhatsApp field; denormalizes from `profile.whatsapp`
+- Job board revamp: JobBoardHero, JobBoardCard, RequestFileIcon, ClientAvatar
+- Nav: global Fournisseurs link, hash scroll on homepage, smooth scroll CSS
+- Extended `copy.ts` with account, whatsappGate, workshop sections
+
+### Decisions
+- Client WhatsApp lives only on `users.whatsapp`; provider business line stays on `providers.whatsapp`
+- WhatsApp gate non-dismissable until saved; blocks request/workshop submit
+- Same UID links users + providers collections (decoupled identity vs listing)
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 6: M5 Dual-Path Platform
+
+### Actions
+- Created `src/lib/copy.ts` — French strings app-wide
+- Built landing components and refactored homepage with `#annuaire` directory
+- Added `/signup/client`, `/become-provider`, redirects from `/login` and `/onboarding`
+- Provider funnel with benefit cards and auth gate
+- French sweep on nav, marketplace, requests, profile, onboarding
+
+### Decisions
+- French-only for MVP (no i18n framework)
+- Separate signup UX paths; same Firebase Google identity
+- Hero owns search; MarketplaceHeader removed from homepage
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 5: Milestone 5 — Request Lifecycle & Client Workspace
+
+### Actions
+- Added `listPendingServiceRequests`, `listUserServiceRequests`, `closeServiceRequest`, `deleteServiceRequest`
+- Wired provider job board to Firestore pending-only query
+- Built `/my-requests` page with `useMyRequests`, `MyRequestsView`, `MyRequestCard`
+- Added close/delete lifecycle with Dialog confirmation and toasts
+- Added "My Requests" to UserMenu and AppHeader
+
+### Decisions
+- Service-layer ownership guards until Firestore rules deploy
+- Cloudinary file cleanup on delete deferred
+- Route `/my-requests` (separate from provider `/requests`)
+
+### Verification
+- `npm run build` success
+
+---
+
+## 2026-06-13 — Session 4: Milestone 4 — Global Shell, Profiles & Job Board
+
+### Actions
+- Extended `ServiceRequest` type + `buildClientJobWhatsAppUrl` / `buildProviderWhatsAppUrl`
+- Installed shadcn: dropdown-menu, avatar, dialog, carousel, sheet
+- Built `AppShell`, `AppHeader`, `UserMenu`; wired into root layout
+- Created `/providers/[id]` with gallery, lightbox, sticky WhatsApp bar
+- Created `requests.service.ts`, `uploadRequestFile`, `useRequests`, `useProvider`
+- Built `/requests/new` (client form) and `/requests` (provider job board)
+- Updated ProviderCard, FeaturedProviders, MarketplaceHeader
+
+### Decisions
+- Client WhatsApp collected per request (stored on `requests` doc)
+- `createServiceRequest` uses `setDoc` with client-generated UUID (matches upload folder)
+- Global header owns List business / Sign In CTAs
+
+### Verification
+- `npm run build` success
+
+---
+
 ## 2026-06-13 — Session 3: Milestone 3 — Marketplace & Onboarding
 
 ### Actions

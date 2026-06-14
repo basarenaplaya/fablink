@@ -1,6 +1,7 @@
 'use client';
 
 import { MANUFACTURING_CATEGORIES } from '@/lib/constants';
+import { copy } from '@/lib/copy';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { ManufacturingCategory } from '@/types';
 
@@ -27,7 +28,7 @@ export function CategoryFilter({ value, onChange }: CategoryFilterProps) {
         value="all"
         className="min-h-11 border-zinc-700 bg-zinc-900/60 px-4 data-[state=on]:border-zinc-500 data-[state=on]:bg-zinc-800"
       >
-        All
+        {copy.marketplace.allCategories}
       </ToggleGroupItem>
       {MANUFACTURING_CATEGORIES.map((category) => (
         <ToggleGroupItem

@@ -1,6 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { User } from 'firebase/auth';
 
 import {
@@ -9,25 +16,38 @@ import {
   signOutUser,
   subscribeToAuthState,
 } from '@/services/auth.service';
+import { getProviderByUserId } from '@/services/providers.service';
 import { getUserProfile } from '@/services/users.service';
-import type { UserProfile } from '@/types';
+import type { ProviderProfile, UserProfile } from '@/types';
 
-interface UseAuthReturn {
+interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
+  providerProfile: ProviderProfile | null;
   loading: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
   refreshProfile: () => Promise<void>;
+  refreshProviderProfile: () => Promise<void>;
 }
 
-export function useAuth(): UseAuthReturn {
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [providerProfile, setProviderProfile] =
+    useState<ProviderProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const loadProviderProfile = useCallback(async (uid: string) => {
+    const provider = await getProviderByUserId(uid);
+    setProviderProfile(provider);
+    return provider;
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (firebaseUser) => {
@@ -35,6 +55,7 @@ export function useAuth(): UseAuthReturn {
 
       if (!firebaseUser) {
         setProfile(null);
+        setProviderProfile(null);
         setLoading(false);
         return;
       }
@@ -43,18 +64,25 @@ export function useAuth(): UseAuthReturn {
         const userProfile = await getUserProfile(firebaseUser.uid);
         setProfile(userProfile);
         setError(null);
+
+        if (userProfile?.role === 'provider') {
+          await loadProviderProfile(firebaseUser.uid);
+        } else {
+          setProviderProfile(null);
+        }
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to load user profile';
         setError(message);
         setProfile(null);
+        setProviderProfile(null);
       } finally {
         setLoading(false);
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [loadProviderProfile]);
 
   const signInWithGoogle = useCallback(async () => {
     setError(null);
@@ -63,6 +91,12 @@ export function useAuth(): UseAuthReturn {
     try {
       const userProfile = await signInWithGoogleService();
       setProfile(userProfile);
+
+      if (userProfile.role === 'provider') {
+        await loadProviderProfile(userProfile.id);
+      } else {
+        setProviderProfile(null);
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to sign in with Google';
@@ -71,7 +105,7 @@ export function useAuth(): UseAuthReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadProviderProfile]);
 
   const signOut = useCallback(async () => {
     setError(null);
@@ -80,6 +114,7 @@ export function useAuth(): UseAuthReturn {
       await signOutUser();
       setUser(null);
       setProfile(null);
+      setProviderProfile(null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to sign out';
@@ -95,6 +130,7 @@ export function useAuth(): UseAuthReturn {
   const refreshProfile = useCallback(async () => {
     if (!user) {
       setProfile(null);
+      setProviderProfile(null);
       return;
     }
 
@@ -102,21 +138,72 @@ export function useAuth(): UseAuthReturn {
       const userProfile = await getUserProfile(user.uid);
       setProfile(userProfile);
       setError(null);
+
+      if (userProfile?.role === 'provider') {
+        await loadProviderProfile(user.uid);
+      } else {
+        setProviderProfile(null);
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to refresh user profile';
       setError(message);
     }
-  }, [user]);
+  }, [loadProviderProfile, user]);
 
-  return {
-    user,
-    profile,
-    loading,
-    error,
-    signInWithGoogle,
-    signOut,
-    getIdToken,
-    refreshProfile,
-  };
+  const refreshProviderProfile = useCallback(async () => {
+    if (!user) {
+      setProviderProfile(null);
+      return;
+    }
+
+    try {
+      await loadProviderProfile(user.uid);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Failed to refresh provider profile';
+      setError(message);
+    }
+  }, [loadProviderProfile, user]);
+
+  const value = useMemo(
+    () => ({
+      user,
+      profile,
+      providerProfile,
+      loading,
+      error,
+      signInWithGoogle,
+      signOut,
+      getIdToken,
+      refreshProfile,
+      refreshProviderProfile,
+    }),
+    [
+      user,
+      profile,
+      providerProfile,
+      loading,
+      error,
+      signInWithGoogle,
+      signOut,
+      getIdToken,
+      refreshProfile,
+      refreshProviderProfile,
+    ],
+  );
+
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthContextValue {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
 }

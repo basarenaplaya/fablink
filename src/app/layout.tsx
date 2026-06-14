@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Geist_Mono } from 'next/font/google';
+import { AppShell } from '@/components/layout/AppShell';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
@@ -15,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FabLink — Tunisia Manufacturing Marketplace',
+  title: 'FabLink — Place de marché fabrication en Tunisie',
   description:
-    'Find vetted 3D printing, CNC, and PCB manufacturing providers in Tunisia.',
+    'Trouvez des ateliers vérifiés en impression 3D, usinage CNC et fabrication PCB en Tunisie.',
 };
 
 export default function RootLayout({
@@ -31,7 +32,7 @@ export default function RootLayout({
       className={`${plusJakarta.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-zinc-950 font-sans text-zinc-50">
-        {children}
+        <AppShell>{children}</AppShell>
         <Toaster richColors position="top-center" />
       </body>
     </html>

@@ -1,12 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { Search, Store } from 'lucide-react';
+import { Search } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { APP_NAME } from '@/lib/constants';
-import { useAuth } from '@/hooks/useAuth';
 
 interface MarketplaceHeaderProps {
   search: string;
@@ -17,32 +14,15 @@ export function MarketplaceHeader({
   search,
   onSearchChange,
 }: MarketplaceHeaderProps) {
-  const { user } = useAuth();
-
-  const listHref = user ? '/onboarding' : '/login?redirect=/onboarding';
-
   return (
     <header className="flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium tracking-wide text-zinc-400">
-            Tunisia Manufacturing
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-50">
-            {APP_NAME}
-          </h1>
-        </div>
-        <Button
-          asChild
-          variant="outline"
-          className="min-h-11 shrink-0 border-zinc-700 bg-zinc-900/70 active:scale-95"
-        >
-          <Link href={listHref}>
-            <Store className="size-4" />
-            <span className="hidden sm:inline">List your business</span>
-            <span className="sm:hidden">List</span>
-          </Link>
-        </Button>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium tracking-wide text-zinc-400">
+          Tunisia Manufacturing
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-50">
+          {APP_NAME}
+        </h1>
       </div>
 
       <div className="relative">

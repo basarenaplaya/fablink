@@ -57,16 +57,12 @@ export function signUploadParams({
   const { cloudName, apiKey } = getCloudinaryConfig();
   const timestamp = Math.round(Date.now() / 1000);
 
+  // Only sign params sent in the upload FormData. resource_type is determined by
+  // the upload URL path (/image/upload, /raw/upload) and must not be signed.
   const paramsToSign: Record<string, string | number> = {
     timestamp,
     folder,
   };
-
-  // resource_type is conveyed by the upload URL path (/image/upload, /raw/upload).
-  // Including it in the signature without sending it in FormData breaks uploads.
-  if (resourceType === 'raw' || resourceType === 'auto') {
-    paramsToSign.resource_type = resourceType;
-  }
 
   const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
 

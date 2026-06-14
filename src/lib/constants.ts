@@ -18,9 +18,9 @@ export const MANUFACTURING_CATEGORIES: ReadonlyArray<{
   value: ManufacturingCategory;
   label: string;
 }> = [
-  { value: '3d-printing', label: '3D Printing' },
-  { value: 'cnc', label: 'CNC' },
-  { value: 'pcb', label: 'PCB Manufacturing' },
+  { value: '3d-printing', label: 'Impression 3D' },
+  { value: 'cnc', label: 'Usinage CNC' },
+  { value: 'pcb', label: 'Fabrication PCB' },
 ] as const;
 
 export const APP_NAME = 'FabLink';
