@@ -49,6 +49,109 @@ export function getCloudinaryConfig(): CloudinaryPublicConfig {
   };
 }
 
+export class CloudinaryAssetError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CloudinaryAssetError';
+  }
+}
+
+export interface ParsedCloudinaryAsset {
+  publicId: string;
+  resourceType: CloudinaryResourceType;
+}
+
+export function parseCloudinaryAssetFromUrl(
+  secureUrl: string,
+): ParsedCloudinaryAsset {
+  const cloudName = getRequiredServerEnv('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME');
+
+  let parsed: URL;
+  try {
+    parsed = new URL(secureUrl);
+  } catch {
+    throw new CloudinaryAssetError('Invalid Cloudinary URL');
+  }
+
+  if (!parsed.hostname.endsWith('res.cloudinary.com')) {
+    throw new CloudinaryAssetError('Not a Cloudinary URL');
+  }
+
+  const pathParts = parsed.pathname.split('/').filter(Boolean);
+  if (
+    pathParts.length < 4 ||
+    pathParts[0] !== cloudName ||
+    pathParts[2] !== 'upload'
+  ) {
+    throw new CloudinaryAssetError('Invalid Cloudinary URL structure');
+  }
+
+  let startIndex = 3;
+  if (/^v\d+$/.test(pathParts[3] ?? '')) {
+    startIndex = 4;
+  }
+
+  const publicIdWithExt = pathParts.slice(startIndex).join('/');
+  if (!publicIdWithExt) {
+    throw new CloudinaryAssetError('Missing public ID in URL');
+  }
+
+  const isPortfolio =
+    publicIdWithExt.startsWith('providers/') &&
+    publicIdWithExt.includes('/portfolio/');
+  const isRequest = publicIdWithExt.startsWith('requests/');
+
+  if (!isPortfolio && !isRequest) {
+    throw new CloudinaryAssetError('Unsupported asset path');
+  }
+
+  if (isPortfolio) {
+    return {
+      publicId: publicIdWithExt.replace(/\.[^/.]+$/, ''),
+      resourceType: 'image',
+    };
+  }
+
+  return {
+    publicId: publicIdWithExt,
+    resourceType: 'raw',
+  };
+}
+
+export function assertCloudinaryAssetOwnership(
+  publicId: string,
+  uid: string,
+): void {
+  const portfolioPattern = new RegExp(
+    `^providers/${uid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/portfolio/.+`,
+  );
+  const requestPattern = new RegExp(
+    `^requests/${uid.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/.+`,
+  );
+
+  if (!portfolioPattern.test(publicId) && !requestPattern.test(publicId)) {
+    throw new CloudinaryAssetError('Unauthorized asset');
+  }
+}
+
+export async function destroyCloudinaryAsset(
+  publicId: string,
+  resourceType: CloudinaryResourceType,
+): Promise<void> {
+  const resolvedType = resourceType === 'auto' ? 'image' : resourceType;
+
+  const result = await cloudinary.uploader.destroy(publicId, {
+    resource_type: resolvedType,
+    invalidate: true,
+  });
+
+  if (result.result === 'ok' || result.result === 'not found') {
+    return;
+  }
+
+  throw new CloudinaryAssetError(`Failed to delete asset: ${result.result}`);
+}
+
 export function signUploadParams({
   folder,
   resourceType,

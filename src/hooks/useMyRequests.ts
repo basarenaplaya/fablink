@@ -4,12 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { copy } from '@/lib/copy';
+import { useAuth } from '@/hooks/useAuth';
 import {
   closeServiceRequest,
   deleteServiceRequest,
+  getServiceRequestById,
   listUserServiceRequests,
   RequestServiceError,
 } from '@/services/requests.service';
+import { deleteCloudinaryAsset } from '@/services/upload.service';
 import type { ServiceRequest } from '@/types';
 
 interface UseMyRequestsReturn {
@@ -23,6 +26,7 @@ interface UseMyRequestsReturn {
 }
 
 export function useMyRequests(userId: string): UseMyRequestsReturn {
+  const { getIdToken } = useAuth();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +89,26 @@ export function useMyRequests(userId: string): UseMyRequestsReturn {
       setActionId(id);
 
       try {
+        const request = await getServiceRequestById(id);
+        if (!request) {
+          throw new RequestServiceError('Request not found');
+        }
+        if (request.userId !== userId) {
+          throw new RequestServiceError('Unauthorized');
+        }
+
+        if (request.fileUrl) {
+          const idToken = await getIdToken(true);
+          if (!idToken) {
+            throw new RequestServiceError('Session expirée');
+          }
+          try {
+            await deleteCloudinaryAsset(request.fileUrl, idToken);
+          } catch (error) {
+            console.error('[useMyRequests] Failed to delete request file:', error);
+          }
+        }
+
         await deleteServiceRequest(id, userId);
         toast.success(copy.requests.toasts.deleted);
         await loadRequests();
@@ -100,7 +124,7 @@ export function useMyRequests(userId: string): UseMyRequestsReturn {
         setActionId(null);
       }
     },
-    [userId, loadRequests],
+    [userId, loadRequests, getIdToken],
   );
 
   return {

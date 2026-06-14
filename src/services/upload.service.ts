@@ -224,6 +224,33 @@ export function validateRequestFile(file: File): void {
   validateFileSize(file);
 }
 
+export async function deleteCloudinaryAsset(
+  secureUrl: string,
+  idToken: string,
+): Promise<void> {
+  const response = await fetch('/api/cloudinary-delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ secureUrl }),
+  });
+
+  if (!response.ok) {
+    let message = 'Failed to delete Cloudinary asset';
+    try {
+      const errorBody = (await response.json()) as { error?: string };
+      if (errorBody.error) {
+        message = errorBody.error;
+      }
+    } catch {
+      // Use default message when error body is not JSON
+    }
+    throw new UploadServiceError(message, response.status);
+  }
+}
+
 export async function uploadRequestFile(
   file: File,
   userId: string,

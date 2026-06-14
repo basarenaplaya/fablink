@@ -49,7 +49,10 @@ import {
   updateProviderProfile,
 } from '@/services/providers.service';
 import { updateUserRole } from '@/services/users.service';
-import { uploadPortfolioImages } from '@/services/upload.service';
+import {
+  deleteCloudinaryAsset,
+  uploadPortfolioImages,
+} from '@/services/upload.service';
 import type { ManufacturingCategory, ProviderProfile } from '@/types';
 import type { TunisianCity } from '@/lib/constants';
 
@@ -230,6 +233,24 @@ export function WorkshopForm({
         await refreshProviderProfile();
         toast.success(copy.onboarding.success);
         router.replace('/');
+      }
+
+      const removedUrls = (initialProvider?.images ?? []).filter(
+        (url) => !images.includes(url),
+      );
+      if (removedUrls.length > 0) {
+        const deleteResults = await Promise.allSettled(
+          removedUrls.map((url) => deleteCloudinaryAsset(url, idToken)),
+        );
+        const failedDeletes = deleteResults.filter(
+          (result) => result.status === 'rejected',
+        );
+        if (failedDeletes.length === removedUrls.length) {
+          console.error(
+            '[WorkshopForm] Failed to delete all removed portfolio images',
+            failedDeletes,
+          );
+        }
       }
     } catch (error) {
       const message =
